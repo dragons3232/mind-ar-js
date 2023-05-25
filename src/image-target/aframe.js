@@ -13,7 +13,8 @@ AFRAME.registerSystem('mindar-image-system', {
   tick: function() {
   },
 
-  setup: function({imageTargetSrc, maxTrack, showStats, uiLoading, uiScanning, uiError, missTolerance, warmupTolerance, filterMinCF, filterBeta}) {
+  setup: function({camera, imageTargetSrc, maxTrack, showStats, uiLoading, uiScanning, uiError, missTolerance, warmupTolerance, filterMinCF, filterBeta}) {
+    this.camera = camera;
     this.imageTargetSrc = imageTargetSrc;
     this.maxTrack = maxTrack;
     this.filterMinCF = filterMinCF;
@@ -88,7 +89,7 @@ AFRAME.registerSystem('mindar-image-system', {
     }
 
     navigator.mediaDevices.getUserMedia({audio: false, video: {
-      facingMode: 'environment',
+      deviceId: this.camera,
     }}).then((stream) => {
       this.video.addEventListener( 'loadedmetadata', () => {
         //console.log("video ready...", this.video);
@@ -203,6 +204,7 @@ AFRAME.registerComponent('mindar-image', {
   dependencies: ['mindar-image-system'],
 
   schema: {
+    camera: {type: 'string'},
     imageTargetSrc: {type: 'string'},
     maxTrack: {type: 'int', default: 1},
     filterMinCF: {type: 'number', default: -1},
@@ -220,6 +222,7 @@ AFRAME.registerComponent('mindar-image', {
     const arSystem = this.el.sceneEl.systems['mindar-image-system'];
 
     arSystem.setup({
+      camera: this.data.camera,
       imageTargetSrc: this.data.imageTargetSrc, 
       maxTrack: this.data.maxTrack,
       filterMinCF: this.data.filterMinCF === -1? null: this.data.filterMinCF,
